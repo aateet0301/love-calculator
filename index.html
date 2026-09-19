@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AV | Love Calculator</title>
+    <meta name="description"
+        content="Calculate your true love compatibility with precision using our custom algorithm and interactive visual breakdown.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Background Canvas for Floating Hearts & Star Dust -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Ambient Background Glows -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <i class="fa-solid fa-heart-pulse brand-icon"></i>
+                <span class="brand-name">AV</span>
+                <span class="badge">LOVE ALGORITHM CALCULATOR</span>
+            </div>
+            <div class="header-actions">
+                <button id="disclaimerToggleBtn" class="glass-btn btn-icon" title="Disclaimer & Info">
+                    <i class="fa-solid fa-circle-info"></i>
+                </button>
+                <button id="historyToggleBtn" class="glass-btn btn-icon" title="View Calculation History">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span class="history-count" id="historyBadge">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Card -->
+        <main class="main-content">
+            <!-- Hero Header -->
+            <div class="hero-text">
+                <h1>Discover Your <span class="gradient-text">Cosmic Compatibility</span></h1>
+                <p>Powered by letter-frequency matrix analysis and pair-sum reduction</p>
+                <button type="button" id="heroPopNoteBtn" class="pop-note-pill" title="Click to read disclaimer">
+                    <i class="fa-solid fa-circle-info"></i> For Fun & Educational Purposes Only (Not 100% Real)
+                </button>
+            </div>
+
+            <!-- Input Form Card -->
+            <div class="glass-card form-card">
+                <form id="loveForm" autocomplete="off">
+                    <div class="input-grid">
+                        <!-- Person 1 -->
+                        <div class="input-group">
+                            <label for="person1">First Person Name</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="person1" placeholder="e.g. Romeo" required maxlength="30">
+                            </div>
+                        </div>
+
+                        <!-- Connector Button -->
+                        <div class="connector-container">
+                            <button type="button" id="swapBtn" class="swap-btn" title="Swap Names">
+                                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                            </button>
+                            <div class="heart-pulse-container" id="heartPulseContainer">
+                                <i id="connectorIcon" class="fa-solid fa-heart heart-pulse-icon"></i>
+                            </div>
+                        </div>
+
+                        <!-- Person 2 -->
+                        <div class="input-group">
+                            <label for="person2">Second Person Name</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user-gear input-icon"></i>
+                                <input type="text" id="person2" placeholder="e.g. Juliet" required maxlength="30">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Relationship Type Selector -->
+                    <div class="relationship-selector">
+                        <span class="selector-label">Connection Type:</span>
+                        <div class="pill-group">
+                            <label class="pill-radio">
+                                <input type="radio" name="relType" value="Romance" checked>
+                                <span><i class="fa-solid fa-heart"></i> 💖 Romance</span>
+                            </label>
+                            <label class="pill-radio">
+                                <input type="radio" name="relType" value="Crush">
+                                <span><i class="fa-solid fa-fire"></i> 🔥 Secret Crush</span>
+                            </label>
+                            <label class="pill-radio">
+                                <input type="radio" name="relType" value="Besties">
+                                <span><i class="fa-solid fa-handshake"></i> 🫂 Best Friends</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" id="clearBtn" class="glass-btn secondary-btn">
+                            <i class="fa-solid fa-rotate-left"></i> Clear
+                        </button>
+                        <button type="submit" id="calculateBtn" class="cta-btn">
+                            <span class="btn-text">Calculate Match</span>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <div class="btn-glow"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Results View (Hidden by Default) -->
+            <div id="resultsCard" class="glass-card results-card hidden">
+                <div class="results-header">
+                    <div class="couple-names">
+                        <span id="resName1">Romeo</span>
+                        <span id="resDividerEmoji" class="heart-divider">💖</span>
+                        <span id="resName2">Juliet</span>
+                    </div>
+                    <span id="relTag" class="rel-tag">💖 Romance</span>
+                </div>
+
+                <!-- Gauge Container -->
+                <div class="gauge-section">
+                    <div class="svg-gauge-wrapper">
+                        <svg class="gauge-svg" viewBox="0 0 200 200">
+                            <circle class="gauge-bg" cx="100" cy="100" r="85"></circle>
+                            <circle id="gaugeProgress" class="gauge-progress" cx="100" cy="100" r="85"></circle>
+                        </svg>
+                        <div class="gauge-inner">
+                            <span id="scoreNumber" class="score-number">0</span>
+                            <span class="score-percent">%</span>
+                            <span id="scoreVerdict" class="score-verdict">Calculating...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quote & Description -->
+                <div class="verdict-banner">
+                    <p id="verdictQuote">"A spark written in the stars."</p>
+                </div>
+
+                <!-- Sub-metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <span id="labelMetric1"><i class="fa-solid fa-fire"></i> Passion</span>
+                            <span id="valPassion">0%</span>
+                        </div>
+                        <div class="bar-bg">
+                            <div id="barPassion" class="bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <span id="labelMetric2"><i class="fa-solid fa-shield-halved"></i> Trust</span>
+                            <span id="valTrust">0%</span>
+                        </div>
+                        <div class="bar-bg">
+                            <div id="barTrust" class="bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <span id="labelMetric3"><i class="fa-solid fa-comments"></i> Communication</span>
+                            <span id="valComm">0%</span>
+                        </div>
+                        <div class="bar-bg">
+                            <div id="barComm" class="bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <span id="labelMetric4"><i class="fa-solid fa-face-laugh-beam"></i> Humor Sync</span>
+                            <span id="valHumor">0%</span>
+                        </div>
+                        <div class="bar-bg">
+                            <div id="barHumor" class="bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Algorithm Trace Accordion -->
+                <div class="algorithm-accordion">
+                    <button type="button" id="algoAccordionBtn" class="accordion-header">
+                        <span><i class="fa-solid fa-code-compare"></i> View Step-by-Step Calculation Trace</span>
+                        <i class="fa-solid fa-chevron-down accordion-arrow"></i>
+                    </button>
+                    <div id="algoAccordionContent" class="accordion-body hidden">
+                        <div class="step-box">
+                            <h4>Step 1: Sentence Formulation</h4>
+                            <p class="code-line" id="step1Text">romeo + loves + juliet = "romeolovesjuliet"</p>
+                        </div>
+                        <div class="step-box">
+                            <h4>Step 2: Unique Character Frequencies</h4>
+                            <div id="step2FreqList" class="freq-list"></div>
+                        </div>
+                        <div class="step-box">
+                            <h4>Step 3: Iterative Pair Reduction</h4>
+                            <div id="step3Reductions" class="reductions-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Action Controls -->
+                <div class="result-actions">
+                    <button type="button" id="shareBtn" class="glass-btn action-btn">
+                        <i class="fa-solid fa-share-nodes"></i> Share Result
+                    </button>
+                    <button type="button" id="recalculateBtn" class="glass-btn action-btn">
+                        <i class="fa-solid fa-arrows-rotate"></i> Test Another
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Crafted with <i class="fa-solid fa-heart glow-heart"></i> using Custom Matrix Pair-Sum Logic</p>
+        </footer>
+    </div>
+
+    <!-- History Drawer Side Panel -->
+    <div id="historyDrawer" class="drawer-overlay hidden">
+        <div class="drawer-content glass-card">
+            <div class="drawer-header">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Match History</h3>
+                <button id="closeDrawerBtn" class="close-btn">&times;</button>
+            </div>
+            <div id="historyList" class="history-list">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="drawer-footer">
+                <button id="clearHistoryBtn" class="glass-btn danger-btn">
+                    <i class="fa-solid fa-trash-can"></i> Clear All History
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">
+        <i class="fa-solid fa-circle-check toast-icon"></i>
+        <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+
+    <!-- Disclaimer Pop Note Modal (Visible First on Page Load) -->
+    <div id="disclaimerModal" class="modal-overlay">
+        <div class="modal-card glass-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-circle-info modal-title-icon"></i>
+                    <h3>Algorithm Disclaimer & Info</h3>
+                </div>
+                <button id="closeDisclaimerX" class="close-btn" title="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="disclaimer-hero">
+                    <div class="disclaimer-badge-icon">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <p class="disclaimer-main-text">
+                        The love compatibility score shown on this website is calculated strictly using a <strong>custom
+                            name letter-frequency algorithm</strong>.
+                    </p>
+                </div>
+                <div class="disclaimer-callout">
+                    <i class="fa-solid fa-shield-heart callout-icon"></i>
+                    <div>
+                        <strong>Not 100% Real Prediction</strong>
+                        <p>This calculator is created strictly for <span>fun, entertainment, and educational
+                                purposes</span>. It does not measure actual real-life love or romance!</p>
+                    </div>
+                </div>
+                <ul class="disclaimer-list">
+                    <li>
+                        <i class="fa-solid fa-square-root-variable"></i>
+                        <div>
+                            <strong>Mathematical Logic:</strong>
+                            <p>Matches are based on counting character frequencies and pair-sum reductions.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-gamepad"></i>
+                        <div>
+                            <strong>For Entertainment Only:</strong>
+                            <p>Enjoy sharing results with friends, but don't base relationship decisions on it!</p>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-heart-pulse"></i>
+                        <div>
+                            <strong>Real Love Matters:</strong>
+                            <p>True compatibility comes from care, communication, mutual respect, and trust.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="closeDisclaimerBtn" class="cta-btn modal-cta-btn">
+                    <span>Got It! Continue to Calculator</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
